@@ -3,7 +3,7 @@ from email.policy import default
 import jpype
 import jpype.imports
 jpype.startJVM(classpath=['sqlanalyzer.jar'])
-from edu.duke.cs.irex.sqlanalyzer import Analyzer
+
 
 
 # pre-define a schema here
