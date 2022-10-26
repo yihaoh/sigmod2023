@@ -8,11 +8,12 @@ from test_info import *
 # project packages
 from boolean_parse_tree import BNode
 from utils import *
-from global_var import *
 from subtree_iter import *
 from ttg import TruthTable
 from fg import FixGenerator
 import time
+
+from global_var_dblp import *
 
 
 COUNT = Function('COUNT', IntSort(), IntSort())
@@ -271,7 +272,7 @@ class QueryTest:
         # get ttg
         self.tt = TruthTable(z3_formulae, z3_rs)
         for i, s in enumerate(z3_rs):
-            self.rs_fix_pair_ttg.append((translate_query_namespace(str(s), self.reverse_mapping[1], self.q2_info.std_alias_to_info), 
+            self.rs_fix_pair_ttg.append(((translate_query_namespace(str(s), self.reverse_mapping[1], self.q2_info.std_alias_to_info), rs[i].get_size()), 
                                         (translate_query_namespace(self.tt.fixes[i][0], self.reverse_mapping[1], self.q2_info.std_alias_to_info), self.tt.fixes[i][1])))
         self.print_rs_fixes(self.rs_fix_pair_ttg)
 
@@ -300,13 +301,14 @@ class QueryTest:
         self.fg = FixGenerator(self.q1_comb_tree, self.q2_comb_tree, self.z3_var, rs, mode='baseline')
         res = self.fg.get_fixes()
         for i, (s, f) in enumerate(res):
-            self.rs_fix_pair_fg.append((translate_query_namespace(str(eval(s.getZ3())), self.reverse_mapping[1], self.q2_info.std_alias_to_info), 
+            self.rs_fix_pair_fg.append(((translate_query_namespace(str(eval(s.getZ3())), self.reverse_mapping[1], self.q2_info.std_alias_to_info), s.get_size()), 
                                         (translate_query_namespace(str(f[0]), self.reverse_mapping[1], self.q2_info.std_alias_to_info), f[1])))
         self.print_rs_fixes(self.rs_fix_pair_fg)
 
 
     def print_rs_fixes(self, rs_fix_pair):
         for i, (s, f) in enumerate(rs_fix_pair):
+            print('==============================================================')
             print(f'Repair Site #{i}: {s[0]}')
             print(f'Repair Site size #{i}: {s[1]}')
             print(f'Fix #{i}: {f[0]}')
@@ -382,21 +384,21 @@ class QueryTest:
             q1gt = q1gexp[0]
         else:
             q1gt = BNode('And', 'log')
-            q1gt.children = [q1exp[0], q1exp[1]]
-            for i in range(2, len(q1exp)):
+            q1gt.children = [q1gexp[0], q1gexp[1]]
+            for i in range(2, len(q1gexp)):
                 tp = q1gt
                 q1gt = BNode('And', 'log')
-                q1gt.children = [tp, q1exp[i]]
+                q1gt.children = [tp, q1gexp[i]]
         
         if len(q2gexp) == 1:
             q2gt = q2gexp[0]
         else:
             q2gt = BNode('And', 'log')
-            q2gt.children = [q2exp[0], q2exp[1]]
-            for i in range(2, len(q2exp)):
+            q2gt.children = [q2gexp[0], q2gexp[1]]
+            for i in range(2, len(q2gexp)):
                 tp = q2gt
                 q2gt = BNode('And', 'log')
-                q2gt.children = [tp, q2exp[i]]
+                q2gt.children = [tp, q2gexp[i]]
 
         # conjunct with boolean formula
         q1final = BNode('And', 'log')
@@ -416,13 +418,13 @@ class QueryTest:
             tp = BNode('And', 'log')
             tp.children = [q2exp, q2gexp[i]]
             if not self.check_implication(q1final_z3, tp.getZ3()):
-                incorrect.append(translate_query_namespace(str(eval(self.q2_groupby_expr[i].getZ3()), self.reverse_mapping[1], self.q2_info.std_alias_to_info)))
+                incorrect.append(translate_query_namespace(str(eval(self.q2_groupby_expr[i].getZ3())), self.reverse_mapping[1], self.q2_info.std_alias_to_info))
 
         for i in range(len(q1gexp)):
             tp = BNode('And', 'log')
             tp.children = [q1exp, q1gexp[i]]
             if not self.check_implication(q2final_z3, tp.getZ3()):
-                missing.append(translate_query_namespace(str(eval(self.q1_groupby_expr[i].getZ3()), self.reverse_mapping[1], self.q2_info.std_alias_to_info)))
+                missing.append(translate_query_namespace(str(eval(self.q1_groupby_expr[i].getZ3())), self.reverse_mapping[1], self.q2_info.std_alias_to_info))
 
         return incorrect, missing
         
@@ -594,7 +596,10 @@ class QueryTest:
                 select_out_of_place.append(translate_query_namespace(str(eval(self.q2_select_expr[i].getZ3())), 
                                                                      self.reverse_mapping[1], self.q2_info.std_alias_to_info))
 
-        return select_err, select_out_of_place #, select_missing
+        if not select_err and not select_out_of_place and not select_missing:
+            print("SELECT clauses are equivalent.")
+
+        return select_err, select_out_of_place, select_missing
 
 
     def test_eval(self, f):

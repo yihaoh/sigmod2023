@@ -6,7 +6,7 @@ from copy import deepcopy
 from z3 import *
 
 # project packages
-from global_var import *
+from global_var_dblp import *
 
 
 

@@ -37,7 +37,7 @@ class RepairSitesIter:
         for i in range(n):
             self.all_comb = self.all_comb + list(combinations(self.nodes, i+1))
         self.all_comb.sort(key=lambda x: sum([y.get_size() for y in x]) + (p1_size + p2_size) / (2*len(x)))
-        print('iter len: ', len(self.all_comb))
+        print('Number of sets of disjoint trees to explore: ', len(self.all_comb))
         self.idx = 0
 
     

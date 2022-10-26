@@ -1,0 +1,6 @@
+jpype1
+z3-solver
+numpy
+pandas
+terminaltables
+colorclass

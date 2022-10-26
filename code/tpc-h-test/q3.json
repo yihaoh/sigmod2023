@@ -1,0 +1,12 @@
+{
+    "original": "select l_orderkey, sum(l_extendedprice * (1 - l_discount)) as revenue, o_orderdate, o_shippriority from customer, orders, lineitem where c_mktsegment = ':1' and c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate < date ':2' and l_shipdate > date ':2' group by l_orderkey, o_orderdate, o_shippriority order by revenue desc, o_orderdate",
+    "q1": "select l_orderkey, sum(l_extendedprice * (1 - l_discount)) as revenue, o_orderdate, o_shippriority from customer, orders, lineitem where c_mktsegment = 'a' and c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate < 13 and l_shipdate > 13 group by l_orderkey, o_orderdate, o_shippriority order by revenue desc, o_orderdate",
+    "q2": "select l_orderkey, sum(l_extendedprice * (1 - l_discount)) as revenue, o_orderdate, o_shippriority from customer, orders, lineitem where c_mktsegment = 'b' and c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate < 2 and l_shipdate > 13 group by l_orderkey, o_orderdate, o_shippriority order by revenue desc, o_orderdate",
+    "ground truth": {
+        "rs": ["c_mktsegment = 'b'", "o_orderdate < 2"],
+        "fix": ["c_mktsegment = 'a'", "o_orderdate < 13"],
+        "cost": 4
+    },
+    "num_pred": 5
+}
+

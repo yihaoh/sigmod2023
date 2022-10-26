@@ -1,0 +1,12 @@
+{
+    "original": "select sum(l_extendedprice * l_discount) as revenue from lineitem where l_shipdate >= date ':1' and l_shipdate < date ':1' + interval '1' year and l_discount between :2 - 0.01 and :2 + 0.01 and l_quantity < :3",
+    "q1": "select sum(l_extendedprice * l_discount) as revenue from lineitem where l_shipdate >= 13 and l_shipdate < 40 and l_discount > 2 and l_discount < 5",
+    "q2": "select sum(l_extendedprice * l_discount) as revenue from lineitem where l_shipdate >= 1 and l_shipdate < 40 and l_discount > 2 and l_discount < 5 and l_quantity < 12",
+    "ground truth": {
+        "rs": ["l_shipdate >= 1", "l_quantity < 12"],
+        "fix": ["l_shipdate >= 13"],
+        "cost": 3
+    },
+    "num_pred": 4
+}
+
